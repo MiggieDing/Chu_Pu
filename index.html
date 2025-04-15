@@ -108,6 +108,11 @@
             background: #a57a4b;
         }
 
+        .throw-button:disabled {
+            background: #ccac8c;
+            cursor: not-allowed;
+        }
+
         .attribute-check {
             margin-top: 30px;
             padding: 15px;
@@ -151,6 +156,93 @@
             color: #8c6239;
             font-style: italic;
         }
+
+        /* 状态选择样式 */
+        .status-selection {
+            margin: 20px 0;
+            padding: 15px;
+            background: #e8e1d0;
+            border-radius: 5px;
+        }
+
+        .status-options {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .status-option {
+            background: #fff;
+            border: 2px solid #d3cbb8;
+            border-radius: 5px;
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 45%;
+            text-align: center;
+        }
+
+        .status-option:hover {
+            background: #f0e9db;
+            transform: translateY(-2px);
+        }
+
+        .status-option.selected {
+            background: #8c6239;
+            color: white;
+            border-color: #704e2e;
+        }
+
+        .status-description {
+            font-style: italic;
+            margin-top: 5px;
+            font-size: 14px;
+        }
+
+        .status-info {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f9f7f0;
+            border-radius: 5px;
+            border-left: 4px solid #8c6239;
+        }
+
+        .restart-button {
+            display: block;
+            margin: 20px auto;
+            padding: 8px 15px;
+            background: #5a7302;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .restart-button:hover {
+            background: #6b8803;
+        }
+
+        .stats-display {
+            display: flex;
+            justify-content: space-around;
+            margin: 15px 0;
+            background: #f0e9db;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-weight: bold;
+            font-size: 18px;
+            color: #8c6239;
+        }
     </style>
 </head>
 <body>
@@ -160,6 +252,54 @@
         <div class="game-info">
             <p>客栈一角摆着几个商人围成的樗蒲博戏。李玄回想起童年在长安街巷见过此戏，不由得驻足观望。</p>
             <p>"哎呀，你也想试试吗？"白鹭嚼着一根草茎，大声招呼道，"咱们这儿的樗蒲可是玩得最痛快的！要不要掷上一把？"</p>
+        </div>
+
+        <!-- 状态选择区域 -->
+        <div class="status-selection" id="statusSelection">
+            <h3>李玄的当前状态</h3>
+            <p>请选择李玄的状态，这将影响博戏的结果：</p>
+            
+            <div class="status-options">
+                <div class="status-option" data-status="dragon">
+                    一饮黄龙
+                    <div class="status-description">昨夜驿丞的黄龙汤十分可疑，喝完直冲天灵盖</div>
+                </div>
+                <div class="status-option" data-status="spring">
+                    春风荡漾
+                    <div class="status-description">胡姬压酒劝客尝，遇见心仪佳人，心情大好</div>
+                </div>
+                <div class="status-option" data-status="stomach">
+                    刚拉肚子
+                    <div class="status-description">早餐不慎吃了变质的干粮，汗流浃背了</div>
+                </div>
+                <div class="status-option" data-status="novice">
+                    不善博戏
+                    <div class="status-description">对博戏一知半解，总是输多赢少</div>
+                </div>
+            </div>
+
+            <div class="status-info" id="statusInfo" style="display: none;">
+                已选择: <span id="selectedStatusText">无</span>
+            </div>
+        </div>
+        
+        <div class="stats-display">
+            <div class="stat-item">
+                <div>杂艺等级</div>
+                <div class="stat-value" id="skillLevel">0</div>
+            </div>
+            <div class="stat-item">
+                <div>幸运修正</div>
+                <div class="stat-value" id="luckModifier">0</div>
+            </div>
+            <div class="stat-item">
+                <div>总回合</div>
+                <div class="stat-value" id="totalRounds">0</div>
+            </div>
+            <div class="stat-item">
+                <div>平均分</div>
+                <div class="stat-value" id="averageScore">0</div>
+            </div>
         </div>
         
         <div class="pieces-container">
@@ -171,14 +311,15 @@
         </div>
         
         <div class="result" id="resultDisplay">
-            请掷樗蒲...
+            请选择李玄的状态，然后掷樗蒲...
         </div>
         
-        <button id="throwButton" class="throw-button">掷樗蒲</button>
+        <button id="throwButton" class="throw-button" disabled>掷樗蒲</button>
+        
+        <button id="restartButton" class="restart-button">重新开始</button>
         
         <div class="attribute-check">
-            <p><strong>技能检定：</strong> 你的【杂艺】技能将影响博戏的结果。</p>
-            <p>李玄的【杂艺】等级: <span id="skillLevel">0</span></p>
+            <p><strong>技能检定：</strong> 【杂艺】技能与李玄的状态会综合影响博戏结果。</p>
         </div>
         
         <div class="combinations">
@@ -203,7 +344,7 @@
                     <td>全白</td>
                     <td>8</td>
                     <td>1/32</td>
-                    <td class="special-category">王来</td>
+                    <td class="special-category">王采</td>
                 </tr>
                 <tr>
                     <td class="combination-name">雉</td>
@@ -213,7 +354,7 @@
                     <td></td>
                 </tr>
                 <tr>
-                    <td class="combination-name">犄/牛</td>
+                    <td class="combination-name">犄</td>
                     <td>两白、三黑</td>
                     <td>10</td>
                     <td>1/32</td>
@@ -269,10 +410,55 @@
         // 初始化变量
         let pieces = ['white', 'white', 'white', 'white', 'white'];
         let score = 0;
+        let totalScore = 0;
+        let roundsPlayed = 0;
         let skillLevel = Math.min(5, Math.max(0, Math.floor(Math.random() * 3) + 1));
+        let selectedStatus = null;
+        let luckModifier = 0;
         
         // 更新技能等级显示
         document.getElementById('skillLevel').textContent = skillLevel;
+        
+        // 状态选择
+        const statusOptions = document.querySelectorAll('.status-option');
+        statusOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                // 移除其他选项的选中状态
+                statusOptions.forEach(opt => opt.classList.remove('selected'));
+                
+                // 添加当前选项的选中状态
+                this.classList.add('selected');
+                
+                // 获取并设置选中的状态
+                selectedStatus = this.getAttribute('data-status');
+                document.getElementById('selectedStatusText').textContent = this.textContent.trim().split('\n')[0];
+                document.getElementById('statusInfo').style.display = 'block';
+                
+                // 设置状态对应的运气修正
+                switch(selectedStatus) {
+                    case 'dragon':
+                        luckModifier = 1.5;  // 极端初始点
+                        break;
+                    case 'spring':
+                        luckModifier = 1.2;  // 基础加点+2
+                        break;
+                    case 'stomach':
+                        luckModifier = 0.5;  // 基础加点为负值
+                        break;
+                    case 'novice':
+                        luckModifier = 0.7;  // 基础加点-2
+                        break;
+                    default:
+                        luckModifier = 1.0;
+                }
+                
+                // 更新运气修正显示
+                document.getElementById('luckModifier').textContent = luckModifier.toFixed(1);
+                
+                // 启用掷骰按钮
+                document.getElementById('throwButton').disabled = false;
+            });
+        });
         
         // 掷骰子按钮点击事件
         document.getElementById('throwButton').addEventListener('click', function() {
@@ -295,6 +481,47 @@
                     }
                 }
             }, 500);
+            
+            // 更新统计信息
+            roundsPlayed++;
+            totalScore += score;
+            document.getElementById('totalRounds').textContent = roundsPlayed;
+            document.getElementById('averageScore').textContent = (totalScore / roundsPlayed).toFixed(1);
+        });
+        
+        // 重启游戏
+        document.getElementById('restartButton').addEventListener('click', function() {
+            // 重置状态选择
+            statusOptions.forEach(opt => opt.classList.remove('selected'));
+            document.getElementById('statusInfo').style.display = 'none';
+            
+            // 重置棋子
+            for(let i = 0; i < 5; i++) {
+                document.getElementById('piece' + i).className = 'piece white';
+            }
+            
+            // 重置统计
+            totalScore = 0;
+            roundsPlayed = 0;
+            document.getElementById('totalRounds').textContent = '0';
+            document.getElementById('averageScore').textContent = '0';
+            
+            // 重新随机技能等级
+            skillLevel = Math.min(5, Math.max(0, Math.floor(Math.random() * 3) + 1));
+            document.getElementById('skillLevel').textContent = skillLevel;
+            
+            // 重置运气修正
+            luckModifier = 0;
+            document.getElementById('luckModifier').textContent = '0';
+            
+            // 重置结果显示
+            document.getElementById('resultDisplay').innerHTML = '请选择李玄的状态，然后掷樗蒲...';
+            
+            // 禁用掷骰按钮
+            document.getElementById('throwButton').disabled = true;
+            
+            // 重置选中状态
+            selectedStatus = null;
         });
         
         // 樗蒲组合检查函数
@@ -304,22 +531,22 @@
             
             // 按照图表严格检查组合
             if (blackCount === 5) return {name: "卢", description: "全黑", score: 16, category: ""};
-            if (blackCount === 0) return {name: "白", description: "全白", score: 8, category: "王来"};
+            if (blackCount === 0) return {name: "白", description: "全白", score: 8, category: "王采"};
             if (blackCount === 2 && whiteCount === 3) return {name: "雉", description: "两黑、三白", score: 14, category: ""};
-            if (blackCount === 3 && whiteCount === 2) return {name: "犄/牛", description: "两白、三黑", score: 10, category: ""};
+            if (blackCount === 3 && whiteCount === 2) return {name: "犄", description: "两白、三黑", score: 10, category: ""};
             if (blackCount === 1 && whiteCount === 4) return {name: "开", description: "一黑、四白", score: 12, category: ""};
             if (blackCount === 4 && whiteCount === 1) return {name: "堂", description: "一白、四黑", score: 11, category: ""};
             
-            // 特殊组合（颜色排列顺序）- 这里简化处理，实际上可能需要考虑具体排列
+            // 特殊组合（颜色排列顺序）- 降低获得好组合的概率
             if (blackCount === 3 && whiteCount === 2) {
-                // 注意：简化处理，实际应该检查具体排列
-                if (Math.random() < 0.3) return {name: "塔", description: "两黑、两白、一黑", score: 5, category: ""};
+                // 降低塔出现的概率
+                if (Math.random() < 0.1 * luckModifier) return {name: "塔", description: "两黑、两白、一黑", score: 5, category: ""};
                 return {name: "雙", description: "三黑、二白", score: 2, category: ""};
             }
             
             if (blackCount === 2 && whiteCount === 3) {
-                // 注意：简化处理，实际应该检查具体排列
-                if (Math.random() < 0.3) return {name: "秃", description: "两白、两黑、一白", score: 4, category: "赤采"};
+                // 降低秃出现的概率
+                if (Math.random() < 0.1 * luckModifier) return {name: "秃", description: "两白、两黑、一白", score: 4, category: "赤采"};
                 return {name: "撅", description: "三白、二黑", score: 3, category: ""};
             }
             
@@ -329,11 +556,21 @@
         
         // 掷樗蒲函数
         function throwPieces() {
+            // 状态影响基础概率
+            let baseChance = 0.4; // 降低基础概率，使差结果更常见
+            
             let blackCount = 0;
             
             // 决定骰子结果
             for(let i = 0; i < 5; i++) {
-                if(Math.random() < 0.5 + (skillLevel * 0.02)) {
+                // 应用状态修正和技能影响
+                let chanceModifier = baseChance + (skillLevel * 0.01);
+                
+                // 运气修正
+                chanceModifier *= luckModifier;
+                
+                // 生成随机结果
+                if(Math.random() < chanceModifier) {
                     pieces[i] = 'black';
                     blackCount++;
                 } else {
@@ -346,7 +583,7 @@
             score = result.score;
             
             // 生成白鹇的反应
-            let feedback = getBaiqianResponse(result);
+            let feedback = getBaiqianResponse(result, selectedStatus);
             
             // 更新结果显示
             document.getElementById('resultDisplay').innerHTML = 
@@ -356,44 +593,82 @@
                 "<br><br>" + feedback;
         }
         
-        // 获取白鹇反应的函数
-        function getBaiqianResponse(result) {
-            const responses = [
-                // 极好结果 (16-14分)
+        // 获取白鹇反应的函数 - 增加对玩家状态的反应
+        function getBaiqianResponse(result, status) {
+            // 基本反应
+            const basicResponses = [
+                // 极好结果 (15-16分)
                 ["哎呀呀！这运道可真是绝了！老天爷赏饭吃啊！", 
                  "哈哈哈！好手段，出千的手艺也教教我？", 
                  "嘿！这把掷得好啊！敢情您是带着仙家本事来的？",
                  "哟呵！这可是旱地遇甘露，踏破铁鞋无觅处啊！您这手气，今儿个准能发财！"],
                  
-                // 好结果 (13-10分)
+                // 好结果 (12-14分)
                 ["嗯，不错不错，您这手法老练，瞧着就是常玩的！", 
                  "哎哟喂，这把掷得可以，差那么一丢丢就是天大的运道了！", 
-                 "嘿嘿，有两下子，跟咱们常走西域的有得一拼！",
+                 "嘿嘿，有两下子，跟常走西域的有得一拼！",
                  "这把叫个好！您是这道上的老手吧？眼光准，手也稳！"],
                  
-                // 一般结果 (9-5分)
-                ["唔，一般般吧，凑合着玩玩！", 
+                // 一般结果 (7-11分)
+                ["咳！跟咱射中骆驼屁股的箭似的——不疼不痒！", 
                  "嘿，这把掷的平平常常，跟赶路的驿马似的，不紧不慢。", 
-                 "嗨，手气平常，不过这才是常态嘛，哪能天天都好运道？",
+                 "跟驿站老赵头算的账本一样——将将巴巴凑合看！",
                  "嗯，就那么回事，再来一把？兴许就走运了！"],
                  
-                // 差结果 (4-1分)
-                ["嘿嘿，这把可真是掷得不怎么地道，您是不是没睡好？", 
+                // 差结果 (1-6分)
+                ["噫！这骰子跟昨儿射偏的箭一般——直奔茅坑去咧！", 
                  "哎哟喂，这运道可有点背，莫不是路上沾了晦气？要不要拿碗热汤暖暖？", 
                  "呵呵，这把掷得不顺啊，可莫要灰心，这樗蒲就是这样，一时背运不算啥！",
                  "哈哈！您这把掷得，跟病马一样——蔫头耷脑的！再来一把，咱不信这个邪！"]
             ];
             
-            let categoryIndex = 0;
-            if (score >= 14) categoryIndex = 0;
-            else if (score >= 10) categoryIndex = 1;
-            else if (score >= 5) categoryIndex = 2;
-            else categoryIndex = 3;
+            // 状态特定反应
+            const statusResponses = {
+                'dragon': {
+                    'good': "看来黄龙汤真有效啊！这把掷得有神仙附体一般！",
+                    'bad': "我说昨夜怎么这么臭……"
+                },
+                'spring': {
+                    'good': "春风得意马蹄疾！这手气，怕不是遇上了桃花运？",
+                    'bad': "哎呀，看来佳人只会让您心神不宁啊，哈哈哈！"
+                },
+                'stomach': {
+                    'good': "嘿！拉肚子也有好处，看把您掷得多轻松！",
+                    'bad': "哎哟，这手气也太惨了，真该给您熬碗姜汤！"
+                },
+                'novice': {
+                    'good': "嘿，您这是新手运啊！老手都不敢这么掷！",
+                    'bad': "不熟就是不熟，多掷几次您就明白其中门道了！"
+                }
+            };
             
-            // 随机选择该类别下的一条反应
-            const randomIndex = Math.floor(Math.random() * responses[categoryIndex].length);
-            return responses[categoryIndex][randomIndex];
+            // 根据分数选择基本反应类别
+            let categoryIndex = 0;
+            if (result.score >= 15) categoryIndex = 0;        // 极好结果
+            else if (result.score >= 12) categoryIndex = 1;   // 好结果
+            else if (result.score >= 7) categoryIndex = 2;    // 一般结果
+            else categoryIndex = 3;                           // 差结果
+            
+            // 选择基本反应
+            const randomIndex = Math.floor(Math.random() * basicResponses[categoryIndex].length);
+            let response = basicResponses[categoryIndex][randomIndex];
+            
+            // 如果有选中状态，添加状态特定反应
+            if (status && statusResponses[status]) {
+                const statusResponse = (categoryIndex <= 1) ? 
+                    statusResponses[status].good : 
+                    statusResponses[status].bad;
+                
+                response += "<br><br>" + statusResponse;
+            }
+            
+            return response;
         }
+        
+        // 初始化显示
+        document.getElementById('luckModifier').textContent = '0';
+        document.getElementById('totalRounds').textContent = '0';
+        document.getElementById('averageScore').textContent = '0';
     </script>
 </body>
 </html>
