@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>樗蒲博戏</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: #f5f2e8;
+            color: #333;
+            padding: 20px;
+        }
+
+        .game-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f9f7f0;
+            border: 1px solid #d3cbb8;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .title {
+            text-align: center;
+            color: #8c6239;
+            border-bottom: 2px solid #d3cbb8;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .pieces-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .piece {
+            width: 40px;
+            height: 80px;
+            margin: 0 10px;
+            border-radius: 40px 40px 0 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 18px;
+            color: white;
+            transition: transform 0.5s, background-color 0.5s;
+            position: relative;
+        }
+
+        .black {
+            background-color: #333;
+            border: 2px solid #222;
+        }
+
+        .white {
+            background-color: #f0f0f0;
+            border: 2px solid #ccc;
+            color: #333;
+        }
+
+        .piece::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .black::after {
+            background-color: #555;
+            border: 1px solid #777;
+        }
+
+        .white::after {
+            background-color: #ddd;
+            border: 1px solid #999;
+        }
+
+        .result {
+            text-align: center;
+            font-size: 18px;
+            margin: 20px 0;
+            padding: 10px;
+            background: #f0e9db;
+            border-radius: 5px;
+        }
+
+        .throw-button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background: #8c6239;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .throw-button:hover {
+            background: #a57a4b;
+        }
+
+        .attribute-check {
+            margin-top: 30px;
+            padding: 15px;
+            background: #e8e1d0;
+            border-radius: 5px;
+        }
+
+        .game-info {
+            font-size: 14px;
+            color: #666;
+            margin-top: 30px;
+            padding-top: 10px;
+            border-top: 1px solid #d3cbb8;
+        }
+
+        .combination-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .combination-table th, .combination-table td {
+            border: 1px solid #d3cbb8;
+            padding: 8px;
+            text-align: center;
+        }
+
+        .combination-table th {
+            background: #e8e1d0;
+        }
+
+        .combination-table tr:nth-child(even) {
+            background: #f9f7f0;
+        }
+        
+        .combination-name {
+            font-weight: bold;
+        }
+        
+        .special-category {
+            color: #8c6239;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1 class="title">樗蒲博戏</h1>
+        
+        <div class="game-info">
+            <p>客栈一角摆着几个商人围成的樗蒲博戏。李玄回想起童年在长安街巷见过此戏，不由得驻足观望。</p>
+            <p>"哎呀，你也想试试吗？"白鹭嚼着一根草茎，大声招呼道，"咱们这儿的樗蒲可是玩得最痛快的！要不要掷上一把？"</p>
+        </div>
+        
+        <div class="pieces-container">
+            <div id="piece0" class="piece white"></div>
+            <div id="piece1" class="piece white"></div>
+            <div id="piece2" class="piece white"></div>
+            <div id="piece3" class="piece white"></div>
+            <div id="piece4" class="piece white"></div>
+        </div>
+        
+        <div class="result" id="resultDisplay">
+            请掷樗蒲...
+        </div>
+        
+        <button id="throwButton" class="throw-button">掷樗蒲</button>
+        
+        <div class="attribute-check">
+            <p><strong>技能检定：</strong> 你的【杂艺】技能将影响博戏的结果。</p>
+            <p>李玄的【杂艺】等级: <span id="skillLevel">0</span></p>
+        </div>
+        
+        <div class="combinations">
+            <h3>樗蒲组合参考</h3>
+            <table class="combination-table">
+                <tr>
+                    <th>采名</th>
+                    <th>说明</th>
+                    <th>采数</th>
+                    <th>概率</th>
+                    <th>类别</th>
+                </tr>
+                <tr>
+                    <td class="combination-name">卢</td>
+                    <td>全黑</td>
+                    <td>16</td>
+                    <td>1/32</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="combination-name">白</td>
+                    <td>全白</td>
+                    <td>8</td>
+                    <td>1/32</td>
+                    <td class="special-category">王来</td>
+                </tr>
+                <tr>
+                    <td class="combination-name">雉</td>
+                    <td>两黑、三白</td>
+                    <td>14</td>
+                    <td>1/32</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="combination-name">犄/牛</td>
+                    <td>两白、三黑</td>
+                    <td>10</td>
+                    <td>1/32</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="combination-name">开</td>
+                    <td>一黑、四白</td>
+                    <td>12</td>
+                    <td>2/32</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="combination-name">堂</td>
+                    <td>一白、四黑</td>
+                    <td>11</td>
+                    <td>2/32</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="combination-name">塔</td>
+                    <td>两黑、两白、一黑</td>
+                    <td>5</td>
+                    <td>3/32</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="combination-name">秃</td>
+                    <td>两白、两黑、一白</td>
+                    <td>4</td>
+                    <td>3/32</td>
+                    <td class="special-category">赤采</td>
+                </tr>
+                <tr>
+                    <td class="combination-name">撅</td>
+                    <td>三白、二黑</td>
+                    <td>3</td>
+                    <td>9/32</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="combination-name">雙</td>
+                    <td>三黑、二白</td>
+                    <td>2</td>
+                    <td>9/32</td>
+                    <td></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // 初始化变量
+        let pieces = ['white', 'white', 'white', 'white', 'white'];
+        let score = 0;
+        let skillLevel = Math.min(5, Math.max(0, Math.floor(Math.random() * 3) + 1));
+        
+        // 更新技能等级显示
+        document.getElementById('skillLevel').textContent = skillLevel;
+        
+        // 掷骰子按钮点击事件
+        document.getElementById('throwButton').addEventListener('click', function() {
+            throwPieces();
+            
+            // 掷骰动画
+            const pieceElements = document.querySelectorAll('.piece');
+            pieceElements.forEach(function(piece) {
+                piece.style.transform = 'rotate(' + (Math.random() * 360) + 'deg)';
+            });
+            
+            // 延迟显示结果，营造动画效果
+            setTimeout(function() {
+                for(let i = 0; i < 5; i++) {
+                    const piece = document.getElementById('piece' + i);
+                    if(pieces[i] === 'black') {
+                        piece.className = 'piece black';
+                    } else {
+                        piece.className = 'piece white';
+                    }
+                }
+            }, 500);
+        });
+        
+        // 樗蒲组合检查函数
+        function checkCombination(blackCount) {
+            // 检查特定的组合
+            const whiteCount = 5 - blackCount;
+            
+            // 按照图表严格检查组合
+            if (blackCount === 5) return {name: "卢", description: "全黑", score: 16, category: ""};
+            if (blackCount === 0) return {name: "白", description: "全白", score: 8, category: "王来"};
+            if (blackCount === 2 && whiteCount === 3) return {name: "雉", description: "两黑、三白", score: 14, category: ""};
+            if (blackCount === 3 && whiteCount === 2) return {name: "犄/牛", description: "两白、三黑", score: 10, category: ""};
+            if (blackCount === 1 && whiteCount === 4) return {name: "开", description: "一黑、四白", score: 12, category: ""};
+            if (blackCount === 4 && whiteCount === 1) return {name: "堂", description: "一白、四黑", score: 11, category: ""};
+            
+            // 特殊组合（颜色排列顺序）- 这里简化处理，实际上可能需要考虑具体排列
+            if (blackCount === 3 && whiteCount === 2) {
+                // 注意：简化处理，实际应该检查具体排列
+                if (Math.random() < 0.3) return {name: "塔", description: "两黑、两白、一黑", score: 5, category: ""};
+                return {name: "雙", description: "三黑、二白", score: 2, category: ""};
+            }
+            
+            if (blackCount === 2 && whiteCount === 3) {
+                // 注意：简化处理，实际应该检查具体排列
+                if (Math.random() < 0.3) return {name: "秃", description: "两白、两黑、一白", score: 4, category: "赤采"};
+                return {name: "撅", description: "三白、二黑", score: 3, category: ""};
+            }
+            
+            // 默认情况
+            return {name: "普通组合", description: blackCount + "黑" + whiteCount + "白", score: blackCount, category: ""};
+        }
+        
+        // 掷樗蒲函数
+        function throwPieces() {
+            let blackCount = 0;
+            
+            // 决定骰子结果
+            for(let i = 0; i < 5; i++) {
+                if(Math.random() < 0.5 + (skillLevel * 0.02)) {
+                    pieces[i] = 'black';
+                    blackCount++;
+                } else {
+                    pieces[i] = 'white';
+                }
+            }
+            
+            // 获取组合结果
+            const result = checkCombination(blackCount);
+            score = result.score;
+            
+            // 生成白鹇的反应
+            let feedback = getBaiqianResponse(result);
+            
+            // 更新结果显示
+            document.getElementById('resultDisplay').innerHTML = 
+                "结果: <span class='combination-name'>" + result.name + "</span> (" + result.description + ")：" + result.score + "点" + 
+                (result.category ? " <span class='special-category'>[" + result.category + "]</span>" : "") +
+                "<br>黑色: " + blackCount + " 白色: " + (5-blackCount) + 
+                "<br><br>" + feedback;
+        }
+        
+        // 获取白鹇反应的函数
+        function getBaiqianResponse(result) {
+            const responses = [
+                // 极好结果 (16-14分)
+                ["哎呀呀！这运道可真是绝了！老天爷赏饭吃啊！", 
+                 "哈哈哈！好手段，出千的手艺也教教我？", 
+                 "嘿！这把掷得好啊！敢情您是带着仙家本事来的？",
+                 "哟呵！这可是旱地遇甘露，踏破铁鞋无觅处啊！您这手气，今儿个准能发财！"],
+                 
+                // 好结果 (13-10分)
+                ["嗯，不错不错，您这手法老练，瞧着就是常玩的！", 
+                 "哎哟喂，这把掷得可以，差那么一丢丢就是天大的运道了！", 
+                 "嘿嘿，有两下子，跟咱们常走西域的有得一拼！",
+                 "这把叫个好！您是这道上的老手吧？眼光准，手也稳！"],
+                 
+                // 一般结果 (9-5分)
+                ["唔，一般般吧，凑合着玩玩！", 
+                 "嘿，这把掷的平平常常，跟赶路的驿马似的，不紧不慢。", 
+                 "嗨，手气平常，不过这才是常态嘛，哪能天天都好运道？",
+                 "嗯，就那么回事，再来一把？兴许就走运了！"],
+                 
+                // 差结果 (4-1分)
+                ["嘿嘿，这把可真是掷得不怎么地道，您是不是没睡好？", 
+                 "哎哟喂，这运道可有点背，莫不是路上沾了晦气？要不要拿碗热汤暖暖？", 
+                 "呵呵，这把掷得不顺啊，可莫要灰心，这樗蒲就是这样，一时背运不算啥！",
+                 "哈哈！您这把掷得，跟病马一样——蔫头耷脑的！再来一把，咱不信这个邪！"]
+            ];
+            
+            let categoryIndex = 0;
+            if (score >= 14) categoryIndex = 0;
+            else if (score >= 10) categoryIndex = 1;
+            else if (score >= 5) categoryIndex = 2;
+            else categoryIndex = 3;
+            
+            // 随机选择该类别下的一条反应
+            const randomIndex = Math.floor(Math.random() * responses[categoryIndex].length);
+            return responses[categoryIndex][randomIndex];
+        }
+    </script>
+</body>
+</html>
